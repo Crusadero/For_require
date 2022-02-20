@@ -138,6 +138,33 @@ function octile(dx, dy){
 	return (dx < dy) ? F * dx + dy : F * dy + dx;
 };
 
+function expandPath(path) {
+    var expanded = [],
+        len = path.length,
+        coord0, coord1,
+        interpolated,
+        interpolatedLen,
+        i, j;
+
+    if (len < 2) {
+        return expanded;
+    }
+
+    for (i = 0; i < len - 1; ++i) {
+        coord0 = path[i];
+        coord1 = path[i + 1];
+
+        interpolated = interpolate(coord0[0], coord0[1], coord1[0], coord1[1]);
+        interpolatedLen = interpolated.length;
+        for (j = 0; j < interpolatedLen - 1; ++j) {
+            expanded.push(interpolated[j]);
+        }
+    }
+    expanded.push(path[len - 1]);
+
+    return expanded;
+};
+
 function Node(x, y, walkable) {
     this.x = x;
     this.y = y;
