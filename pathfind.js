@@ -577,3 +577,4 @@ TraceFinder.prototype._findNeighbors = function(node) {
     return neighbors;
 };
 
+
