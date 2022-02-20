@@ -397,3 +397,101 @@ AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
     }
     return [];
 };
+
+
+function TraceFinder() {
+    opt = opt || {};
+    this.heuristic = opt.heuristic || manhattan;
+    this.trackJumpRecursion = opt.trackJumpRecursion || false;
+};
+
+TraceFinder.prototype = new JumpPointFinderBase();
+TraceFinder.prototype.constructor = TraceFinder;
+
+
+TraceFinder.prototype._jump = function(x, y, px, py) {
+    var grid = this.grid,
+        dx = x - px, dy = y - py;
+
+    if (!grid.isWalkableAt(x, y)) {
+        return null;
+    }
+
+    if(this.trackJumpRecursion === true) {
+        grid.getNodeAt(x, y).tested = true;
+    }
+
+    if (grid.getNodeAt(x, y) === this.endNode) {
+        return [x, y];
+    }
+
+    if (dx !== 0) {
+        if ((grid.isWalkableAt(x, y - 1) && !grid.isWalkableAt(x - dx, y - 1)) ||
+            (grid.isWalkableAt(x, y + 1) && !grid.isWalkableAt(x - dx, y + 1))) {
+            return [x, y];
+        }
+    }
+    else if (dy !== 0) {
+        if ((grid.isWalkableAt(x - 1, y) && !grid.isWalkableAt(x - 1, y - dy)) ||
+            (grid.isWalkableAt(x + 1, y) && !grid.isWalkableAt(x + 1, y - dy))) {
+            return [x, y];
+        }
+        //When moving vertically, must check for horizontal jump points
+        if (this._jump(x + 1, y, x, y) || this._jump(x - 1, y, x, y)) {
+            return [x, y];
+        }
+    }
+    else {
+        throw new Error("Only horizontal and vertical movements are allowed");
+    }
+
+    return this._jump(x + dx, y + dy, x, y);
+};
+
+TraceFinder.prototype._findNeighbors = function(node) {
+    var parent = node.parent,
+        x = node.x, y = node.y,
+        grid = this.grid,
+        px, py, nx, ny, dx, dy,
+        neighbors = [], neighborNodes, neighborNode, i, l;
+
+    if (parent) {
+        px = parent.x;
+        py = parent.y;
+        dx = (x - px) / Math.max(Math.abs(x - px), 1);
+        dy = (y - py) / Math.max(Math.abs(y - py), 1);
+
+        if (dx !== 0) {
+            if (grid.isWalkableAt(x, y - 1)) {
+                neighbors.push([x, y - 1]);
+            }
+            if (grid.isWalkableAt(x, y + 1)) {
+                neighbors.push([x, y + 1]);
+            }
+            if (grid.isWalkableAt(x + dx, y)) {
+                neighbors.push([x + dx, y]);
+            }
+        }
+        else if (dy !== 0) {
+            if (grid.isWalkableAt(x - 1, y)) {
+                neighbors.push([x - 1, y]);
+            }
+            if (grid.isWalkableAt(x + 1, y)) {
+                neighbors.push([x + 1, y]);
+            }
+            if (grid.isWalkableAt(x, y + dy)) {
+                neighbors.push([x, y + dy]);
+            }
+        }
+    }
+
+    else {
+        neighborNodes = grid.getNeighbors(node, DiagonalMovement.Never);
+        for (i = 0, l = neighborNodes.length; i < l; ++i) {
+            neighborNode = neighborNodes[i];
+            neighbors.push([neighborNode.x, neighborNode.y]);
+        }
+    }
+
+    return neighbors;
+};
