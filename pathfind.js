@@ -401,7 +401,7 @@ AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
 
 function JumpPointFinderBase(opt) {
     opt = opt || {};
-    this.heuristic = opt.heuristic || Heuristic.manhattan;
+    this.heuristic = opt.heuristic || manhattan;
     this.trackJumpRecursion = opt.trackJumpRecursion || false;
 }
 
