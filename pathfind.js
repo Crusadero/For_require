@@ -480,7 +480,7 @@ JumpPointFinderBase.prototype._identifySuccessors = function(node) {
     }
 };
 
-function TraceFinder() {
+function TraceFinder(opt) {
     opt = opt || {};
     this.heuristic = opt.heuristic || manhattan;
     this.trackJumpRecursion = opt.trackJumpRecursion || false;
