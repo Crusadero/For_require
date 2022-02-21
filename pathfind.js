@@ -165,6 +165,40 @@ function expandPath(path) {
     return expanded;
 };
 
+function interpolate(x0, y0, x1, y1) {
+    var abs = Math.abs,
+        line = [],
+        sx, sy, dx, dy, err, e2;
+
+    dx = abs(x1 - x0);
+    dy = abs(y1 - y0);
+
+    sx = (x0 < x1) ? 1 : -1;
+    sy = (y0 < y1) ? 1 : -1;
+
+    err = dx - dy;
+
+    while (true) {
+        line.push([x0, y0]);
+
+        if (x0 === x1 && y0 === y1) {
+            break;
+        }
+        
+        e2 = 2 * err;
+        if (e2 > -dy) {
+            err = err - dy;
+            x0 = x0 + sx;
+        }
+        if (e2 < dx) {
+            err = err + dx;
+            y0 = y0 + sy;
+        }
+    }
+
+    return line;
+}
+
 function Node(x, y, walkable) {
     this.x = x;
     this.y = y;
